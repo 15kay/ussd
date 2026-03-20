@@ -3,250 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RSOS Strategic Ecosystem</title>
+    <title>RSOS Advanced Nexus</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Share+Tech+Mono&family=Inter:wght@400;700&display=swap');
+        :root { --case: #0f172a; --lcd: #94b43b; --ink: #1a2408; --glow: #38bdf8; --success: #16a34a; }
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        body { background: #020617; height: 100vh; display: flex; justify-content: center; align-items: center; font-family: 'Inter', sans-serif; overflow: hidden; }
 
-        :root {
-            --phone: #0f172a;
-            --lcd: #94b43b;
-            --ink: #1a2408;
-            --sky: #0ea5e9;
-        }
+        /* --- ADVANCED SMS NOTIFICATION --- */
+        #notif { position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 340px; background: #fff; border-radius: 16px; padding: 18px; box-shadow: 0 25px 50px rgba(0,0,0,0.7); z-index: 9999; border-top: 5px solid var(--success); display: flex; align-items: flex-start; gap: 12px; }
+        #notif.active { top: 30px; }
+        .notif-icon { background: #dcfce7; border-radius: 50%; padding: 8px; font-size: 20px; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; transition: 0.2s; }
+        /* --- RUGGEDIZED HARDWARE --- */
+        .industrial-phone { width: 380px; background: var(--case); border-radius: 60px; padding: 50px 30px; border: 6px solid #334155; position: relative; box-shadow: 0 0 120px rgba(14, 165, 233, 0.1); }
+        .industrial-phone::after { content: "RSOS STRATEGIC AGENT • v8.0-ADV"; position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-family: 'Orbitron'; font-size: 9px; color: var(--glow); letter-spacing: 3px; opacity: 0.7; }
+        
+        .bezel { background: #000; padding: 15px; border-radius: 15px; margin-bottom: 25px; box-shadow: inset 0 0 30px #000; border: 1px solid #1e293b; }
+        .lcd { background: var(--lcd); height: 280px; border-radius: 6px; padding: 18px; color: var(--ink); font-family: 'Share Tech Mono', monospace; font-size: 14px; line-height: 1.5; position: relative; display: flex; flex-direction: column; }
 
-        body {
-            background: #020617;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Inter', sans-serif;
-        }
+        /* --- DYNAMIC XP TRACKER --- */
+        .progress-zone { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.1); }
+        .xp-text { font-size: 10px; font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .bar-bg { width: 100%; height: 10px; background: rgba(0,0,0,0.15); border-radius: 10px; overflow: hidden; }
+        #bar-fill { height: 100%; width: 25%; background: var(--success); transition: width 1.2s ease; }
 
-        /* --- NOTIFICATION POPUP --- */
-        #notif {
-            position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
-            width: 320px; background: white; border-radius: 12px; padding: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5); z-index: 1000;
-            border-left: 6px solid var(--sky); display: flex; align-items: center; gap: 10px;
-        }
-        #notif.active { top: 20px; }
+        .mmi-view { width: 100%; background: #000; color: #4ade80; border: 1px solid #334155; padding: 12px; text-align: center; margin-bottom: 25px; font-family: 'Share Tech Mono'; font-size: 26px; border-radius: 12px; height: 60px; text-shadow: 0 0 10px rgba(74, 222, 128, 0.3); }
+        .key-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+        .k-btn { background: linear-gradient(145deg, #1e293b, #0f172a); height: 55px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #f8fafc; font-size: 22px; font-weight: bold; cursor: pointer; border-bottom: 5px solid #000; }
+        .k-btn:active { transform: translateY(4px); border-bottom-width: 1px; }
 
-        /* --- HARDWARE --- */
-        .device {
-            width: 360px; background: var(--phone); border-radius: 50px;
-            padding: 45px 25px; border: 4px solid #334155;
-            box-shadow: 0 0 80px rgba(14, 165, 233, 0.15); position: relative;
-        }
-
-        .device::before {
-            content: "RSOS INTELLIGENT AGENT • EC";
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            font-family: 'Orbitron', sans-serif; font-size: 9px; color: var(--sky); letter-spacing: 2px;
-        }
-
-        .screen-well { background: #000; padding: 10px; border-radius: 12px; margin-bottom: 20px; }
-
-        .lcd {
-            background: var(--lcd); height: 260px; border-radius: 4px; padding: 15px;
-            color: var(--ink); font-family: 'Share Tech Mono', monospace;
-            font-size: 14px; line-height: 1.4; position: relative; overflow: hidden;
-        }
-
-        /* --- PROGRESSION XP --- */
-        .xp-bar { width: 100%; height: 6px; background: rgba(0,0,0,0.1); border-radius: 5px; margin: 8px 0; display: none; }
-        #xp-lvl { height: 100%; width: 20%; background: #166534; }
-
-        .mmi-bar {
-            width: 100%; background: #000; color: #22c55e; border: 1px solid #334155;
-            padding: 12px; text-align: center; margin-bottom: 20px;
-            font-family: 'Share Tech Mono', monospace; font-size: 22px; border-radius: 8px;
-        }
-
-        .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-
-        .key {
-            background: #1e293b; height: 50px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-weight: bold; cursor: pointer; border-bottom: 4px solid #000;
-        }
-        .key:active { transform: translateY(2px); border-bottom-width: 1px; }
-
-        .actions { display: flex; justify-content: space-between; margin-bottom: 15px; }
-        .btn {
-            width: 48%; padding: 12px; border-radius: 8px; border: none;
-            color: white; font-weight: bold; cursor: pointer; font-size: 11px;
-            font-family: 'Orbitron', sans-serif; text-transform: uppercase;
-        }
-        .btn-ok { background: #16a34a; }
-        .btn-no { background: #dc2626; }
-
+        .ctrls { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .action-btn { width: 48%; padding: 16px; border-radius: 12px; border: none; color: #fff; font-weight: bold; cursor: pointer; font-size: 12px; font-family: 'Orbitron'; box-shadow: 0 4px 0 #000; }
+        .btn-call { background: linear-gradient(180deg, #22c55e, #166534); }
+        .btn-hang { background: linear-gradient(180deg, #ef4444, #991b1b); }
     </style>
 </head>
 <body>
 
 <div id="notif">
-    <div style="font-size:24px">📬</div>
+    <div class="notif-icon">✅</div>
     <div>
-        <strong id="notif-title" style="font-size:12px; display:block">SYSTEM MESSAGE</strong>
-        <p id="notif-body" style="font-size:11px; color:#475569; margin:0"></p>
+        <strong id="n-title" style="font-size:13px; display:block">ACTION REGISTERED</strong>
+        <p id="n-body" style="font-size:11px; color:#475569; margin:4px 0 0 0"></p>
     </div>
 </div>
 
-<div class="device">
-    <div class="screen-well">
-        <div class="lcd" id="lcd">
-            <div id="idle-screen" style="text-align:center; padding-top:40px">
-                *** RSOS AGENT ***<br>
-                SKILLS & SMME NEXUS<br><br>
-                GEO: EASTERN CAPE<br>
-                REGIONS: GQ, EL, MT<br><br>
-                DIAL *120#
+<div class="industrial-phone">
+    <div class="bezel">
+        <div class="lcd" id="lcd-display">
+            <div id="boot-msg" style="text-align:center; padding-top:60px">
+                *** RSOS AGENT 8.0 ***<br>
+                EC STRATEGIC HUB<br>
+                -------------------<br>
+                STATUS: ENCRYPTED<br><br>
+                DIAL *120# TO BEGIN
             </div>
-            <div id="app-screen" style="display:none">
-                <b id="user-info"></b>
-                <div class="xp-bar" id="xp-bar"><div id="xp-lvl"></div></div>
-                <div id="menu-content" style="margin-top:10px; white-space: pre-wrap;"></div>
+            <div id="app-ui" style="display:none; height: 100%;">
+                <div id="header-bar" style="border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px; margin-bottom: 10px;">
+                    <b id="user-name"></b> | <span id="user-loc"></span>
+                </div>
+                <div id="menu-area" style="white-space: pre-wrap; flex-grow: 1;"></div>
+                <div class="progress-zone">
+                    <div class="xp-text"><span>GPS PROGRESS</span> <span id="rank-name">LEVEL 1</span></div>
+                    <div class="bar-bg"><div id="bar-fill"></div></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="mmi-input" class="mmi-bar"></div>
+    <div id="mmi-buffer" class="mmi-view"></div>
 
-    <div class="actions">
-        <button class="btn btn-ok" onclick="handleSend()">SEND</button>
-        <button class="btn btn-no" onclick="handleEnd()">END</button>
+    <div class="ctrls">
+        <button class="action-btn btn-call" onclick="onSend()">SEND</button>
+        <button class="action-btn btn-hang" onclick="onEnd()">END</button>
     </div>
 
-    <div class="keys">
-        <div class="key" onclick="press('1')">1</div>
-        <div class="key" onclick="press('2')">2</div>
-        <div class="key" onclick="press('3')">3</div>
-        <div class="key" onclick="press('4')">4</div>
-        <div class="key" onclick="press('5')">5</div>
-        <div class="key" onclick="press('6')">6</div>
-        <div class="key" onclick="press('7')">7</div>
-        <div class="key" onclick="press('8')">8</div>
-        <div class="key" onclick="press('9')">9</div>
-        <div class="key" onclick="press('*')">*</div>
-        <div class="key" onclick="press('0')">0</div>
-        <div class="key" onclick="press('#')">#</div>
+    <div class="key-grid">
+        <div class="k-btn" onclick="type('1')">1</div><div class="k-btn" onclick="type('2')">2</div><div class="k-btn" onclick="type('3')">3</div>
+        <div class="k-btn" onclick="type('4')">4</div><div class="k-btn" onclick="type('5')">5</div><div class="k-btn" onclick="type('6')">6</div>
+        <div class="k-btn" onclick="type('7')">7</div><div class="k-btn" onclick="type('8')">8</div><div class="k-btn" onclick="type('9')">9</div>
+        <div class="k-btn" onclick="type('*')">*</div><div class="k-btn" onclick="type('0')">0</div><div class="k-btn" onclick="type('#')">#</div>
     </div>
 </div>
 
 <script>
     let state = "IDLE";
     let user = null;
-    let xpPercent = 20;
+    let xp = 25;
 
-    const USERS = {
-        "1010": { name: "Avela", type: "JOBSEEKER", loc: "Gqeberha", lvl: "Beginner", xp: 20 },
-        "2020": { name: "Luvuyo", type: "SMME", loc: "Mthatha", lvl: "Startup", xp: 15 }
+    const DATABASE = {
+        "1010": { name: "Zukisa", type: "JOBSEEKER", loc: "Gqeberha", xp: 30, rank: "Candidate" },
+        "2020": { name: "Sizwe", type: "SMME", loc: "East London", xp: 15, rank: "Startup" }
     };
 
-    function press(n) { document.getElementById('mmi-input').innerText += n; }
+    function type(n) { document.getElementById('mmi-buffer').innerText += n; }
 
-    function handleSend() {
-        const val = document.getElementById('mmi-input').innerText;
-        document.getElementById('mmi-input').innerText = "";
+    function onSend() {
+        const val = document.getElementById('mmi-buffer').innerText;
+        document.getElementById('mmi-buffer').innerText = "";
 
-        if(state === "IDLE" && val === "*120#") {
-            state = "AUTH";
-            updateLCD("IDENTITY CHECK\n---------------\nEnter Registered PIN:");
+        if(state === "IDLE") {
+            if(val === "*120#") {
+                state = "AUTH";
+                drawLCD("IDENTITY SECURITY\n-------------------\nEnter 4-Digit PIN:");
+            }
             return;
         }
 
         if(state === "AUTH") {
-            if(USERS[val]) {
-                user = USERS[val];
-                xpPercent = user.xp;
+            if(DATABASE[val]) {
+                user = DATABASE[val];
+                xp = user.xp;
                 state = "MAIN";
                 renderMain();
             } else {
-                updateLCD("INVALID PIN\nTry 1010 (Seeker)\nTry 2020 (SMME)\n\nPIN:");
+                drawLCD("ACCESS DENIED\n\nPIN Not Found.\nTry 1010 or 2020.\n\nPIN:");
             }
             return;
         }
 
         if(state === "MAIN") {
-            if(val === "1") { state = "SKILLS"; renderSkills(); }
+            if(val === "1") { state = "GPS_BRANCH"; renderGPSBranch(); }
             else if(val === "2") { state = "MATCH"; renderMatch(); }
-            else if(val === "3") { state = "COORD"; renderCoord(); }
-            else if(val === "0") handleEnd();
-        } else if(state === "MATCH" || state === "SKILLS") {
+            else if(val === "3") { state = "HUB"; renderHub(); }
+            else if(val === "0") onEnd();
+        } 
+        else if(state === "GPS_BRANCH") {
+            if(val === "1") { state = "PATH_A"; renderPathA(); }
+            else if(val === "2") { state = "PATH_B"; renderPathB(); }
+            else if(val === "9") { state = "MAIN"; renderMain(); }
+        }
+        else if(state === "PATH_A" || state === "PATH_B" || state === "MATCH") {
             if(val === "1" || val === "2") {
-                confirmAction(val);
+                executeAction(val);
             } else if(val === "9") {
                 state = "MAIN";
                 renderMain();
             }
-        } else if(val === "9") {
-            state = "MAIN";
-            renderMain();
         }
     }
 
     function renderMain() {
-        showAppUI();
-        const sub = user.type === "JOBSEEKER" ? "Skills GPS" : "Growth Path";
-        document.getElementById('user-info').innerText = `${user.name} • ${user.loc}\n[${user.lvl}]`;
-        document.getElementById('menu-content').innerText = `1 ${sub}\n2 Apply for Opportunities\n3 Ecosystem Status\n0 Exit`;
-        document.getElementById('xp-lvl').style.width = xpPercent + "%";
+        showUI();
+        const gpsLabel = user.type === "JOBSEEKER" ? "Career Pathing" : "Business Growth";
+        setMenu(`1 ${gpsLabel}\n2 Match/Apply\n3 Ecosystem Stats\n0 Exit`);
     }
 
-    function renderSkills() {
+    function renderGPSBranch() {
         if(user.type === "JOBSEEKER") {
-            document.getElementById('menu-content').innerText = `SKILLS GPS (Jobs):\nGAP: Digital Comms\nCOURSE: MS Office Cert\nGRANT: R3000 Stipend\n\n1 Apply for Course\n9 Back`;
+            setMenu(`SELECT CATEGORY:\n1 Tech/Admin (SETA A)\n2 Trade/Logistics (SETA B)\n\n9 Back`);
         } else {
-            document.getElementById('menu-content').innerText = `GROWTH PATH (SMME):\nGAP: Compliance/Tax\nWORKSHOP: SARS Readiness\nMATCH: Tenders Level 1\n\n1 Register Workshop\n9 Back`;
+            setMenu(`SELECT FOCUS:\n1 Compliance (Tax/Legal)\n2 Market Access (Tenders)\n\n9 Back`);
         }
     }
 
+    function renderPathA() {
+        const title = user.type === "JOBSEEKER" ? "TECH PATH" : "COMPLIANCE";
+        const act = user.type === "JOBSEEKER" ? "Apply: Coding Bootcamp" : "Apply: SARS Prep";
+        setMenu(`${title} GAP FOUND\nNext Step Required:\n1 ${act}\n\n9 Back`);
+    }
+
+    function renderPathB() {
+        const title = user.type === "JOBSEEKER" ? "TRADE PATH" : "MARKET ACCESS";
+        const act = user.type === "JOBSEEKER" ? "Apply: Forklift Cert" : "Apply: ESD Programme";
+        setMenu(`${title} GAP FOUND\nNext Step Required:\n1 ${act}\n\n9 Back`);
+    }
+
     function renderMatch() {
-        const o1 = user.type === "JOBSEEKER" ? "Admin (Gqeberha)" : "SEFA Grant R50k";
-        const o2 = user.type === "JOBSEEKER" ? "Retail (Mthatha)" : "SEDA Mentorship";
-        document.getElementById('menu-content').innerText = `MATCHED FOR YOU:\n1 ${o1}\n2 ${o2}\n\n9 Back`;
+        const m1 = user.type === "JOBSEEKER" ? "Internship (EL)" : "SEFA Loan (R100k)";
+        const m2 = user.type === "JOBSEEKER" ? "Retail Role (GQ)" : "SAB Mentorship";
+        setMenu(`NEW MATCHES FOUND:\n1 ${m1}\n2 ${m2}\n\n9 Back`);
     }
 
-    function renderCoord() {
-        document.getElementById('menu-content').innerText = `ECOSYSTEM HUB:\n- Active SETAs: 4\n- Local Jobs: 124\n- Active SMMEs: 89\n\n9 Back to Menu`;
+    function renderHub() {
+        setMenu(`ECOSYSTEM PULSE:\n- SETA Partners: 6 Active\n- Hiring Hubs: Mthatha, EL\n- SMME Grants: 4 Open\n\n9 Back`);
     }
 
-    function confirmAction(opt) {
-        xpPercent += 15;
-        triggerNotif("ACTION LOGGED", `Success! Your ${user.type} profile has been updated. GPS level increasing.`);
+    function executeAction(opt) {
+        xp = Math.min(xp + 25, 100);
+        const msg = user.type === "JOBSEEKER" ? "Job application & GPS tracking updated." : "Business grant interest logged.";
+        triggerNotif("LEVEL UP!", msg);
         state = "MAIN";
         renderMain();
     }
 
+    function setMenu(txt) {
+        document.getElementById('menu-area').innerText = txt;
+        document.getElementById('user-name').innerText = user.name;
+        document.getElementById('user-loc').innerText = user.loc;
+        document.getElementById('bar-fill').style.width = xp + "%";
+        document.getElementById('rank-name').innerText = xp >= 75 ? "EXPERT" : (xp >= 50 ? "PARTICIPANT" : "CANDIDATE");
+    }
+
     function triggerNotif(title, body) {
-        document.getElementById('notif-title').innerText = title;
-        document.getElementById('notif-body').innerText = body;
+        document.getElementById('n-title').innerText = title;
+        document.getElementById('n-body').innerText = body;
         const n = document.getElementById('notif');
         n.classList.add('active');
         setTimeout(() => n.classList.remove('active'), 5000);
     }
 
-    function showAppUI() {
-        document.getElementById('idle-screen').style.display = "none";
-        document.getElementById('app-screen').style.display = "block";
-        document.getElementById('xp-bar').style.display = "block";
+    function showUI() {
+        document.getElementById('boot-msg').style.display = "none";
+        document.getElementById('app-ui').style.display = "flex";
     }
 
-    function updateLCD(txt) {
-        document.getElementById('idle-screen').style.display = "block";
-        document.getElementById('app-screen').style.display = "none";
-        document.getElementById('idle-screen').innerText = txt;
+    function drawLCD(txt) {
+        document.getElementById('boot-msg').style.display = "block";
+        document.getElementById('app-ui').style.display = "none";
+        document.getElementById('boot-msg').innerText = txt;
     }
 
-    function handleEnd() {
-        state = "IDLE";
-        user = null;
-        xpPercent = 20;
-        document.getElementById('xp-bar').style.display = "none";
-        updateLCD("*** RSOS AGENT ***\n\nSESSION ENDED\n\nDIAL *120#");
+    function onEnd() {
+        state = "IDLE"; user = null; xp = 25;
+        drawLCD("*** RSOS AGENT 8.0 ***\n\nSESSION CLOSED\n\nDIAL *120#");
     }
 </script>
 </body>
