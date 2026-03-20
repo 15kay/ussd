@@ -3,37 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RSOS Refactored Hub</title>
+    <title>RSOS Enterprise v10</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Share+Tech+Mono&family=Inter:wght@400;700&display=swap');
         
         :root { 
-            --frame: #1e293b; 
-            --lcd-bg: #94b43b; 
-            --lcd-ink: #1a2408; 
-            --glow: #38bdf8; 
-            --accent: #166534;
+            --frame: #1e293b; --lcd-bg: #94b43b; --lcd-ink: #1a2408; 
+            --glow: #38bdf8; --accent: #166534; --error: #991b1b;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-
         body { 
             background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
             height: 100vh; display: flex; justify-content: center; align-items: center; 
             font-family: 'Inter', sans-serif; overflow: hidden;
         }
 
-        /* --- THE NOTIFICATION --- */
+        /* --- NOTIFICATION --- */
         #sms-pop {
-            position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+            position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
             width: 320px; background: #fff; border-radius: 12px; padding: 15px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6); z-index: 999;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6); z-index: 1000;
             border-left: 5px solid var(--glow); display: flex; align-items: center; gap: 10px;
             transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         #sms-pop.active { top: 25px; }
 
-        /* --- THE PHONE FRAME --- */
+        /* --- HARDWARE --- */
         .phone-shell {
             width: 360px; background: var(--frame); border-radius: 50px;
             padding: 45px 20px 30px 20px; border: 4px solid #334155;
@@ -41,12 +37,12 @@
         }
 
         .phone-shell::before {
-            content: "RSOS INTELLIGENT AGENT"; position: absolute; top: 18px; left: 50%;
-            transform: translateX(-50%); font-family: 'Orbitron'; font-size: 10px;
+            content: "RSOS ENTERPRISE v10.0"; position: absolute; top: 18px; left: 50%;
+            transform: translateX(-50%); font-family: 'Orbitron'; font-size: 9px;
             color: var(--glow); letter-spacing: 2px;
         }
 
-        /* --- REFACTORED LCD SCREEN --- */
+        /* --- LCD SCREEN --- */
         .bezel {
             background: #000; padding: 10px; border-radius: 12px; margin-bottom: 20px;
             box-shadow: inset 0 0 15px #000;
@@ -56,27 +52,25 @@
             background: var(--lcd-bg); height: 260px; border-radius: 4px;
             color: var(--lcd-ink); font-family: 'Share Tech Mono', monospace;
             display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
         }
 
-        /* LCD Internal Layout */
         .lcd-header { 
             font-size: 11px; font-weight: bold; padding: 8px; 
             border-bottom: 1px solid rgba(0,0,0,0.15); display: flex; justify-content: space-between;
+            background: rgba(0,0,0,0.05);
         }
         .lcd-body { flex-grow: 1; padding: 10px; font-size: 13px; line-height: 1.4; white-space: pre-wrap; }
+        
         .lcd-footer { padding: 8px; border-top: 1px solid rgba(0,0,0,0.15); }
-
-        /* XP Bar */
-        .xp-label { font-size: 9px; font-weight: bold; margin-bottom: 3px; display: block; }
         .xp-track { width: 100%; height: 6px; background: rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden; }
-        #xp-fill { height: 100%; width: 20%; background: var(--accent); transition: width 0.8s ease; }
+        #xp-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.8s ease; }
 
         /* --- INPUTS --- */
         .mmi-display {
             width: 100%; background: #000; color: #4ade80; border: 1px solid #334155;
             padding: 10px; text-align: center; margin-bottom: 20px;
             font-family: 'Share Tech Mono'; font-size: 22px; border-radius: 8px; height: 50px;
+            box-shadow: inset 0 0 10px rgba(74, 222, 128, 0.2);
         }
 
         .btn-group { display: flex; justify-content: space-between; margin-bottom: 20px; }
@@ -84,15 +78,14 @@
             width: 48%; padding: 14px; border-radius: 10px; border: none; font-weight: bold;
             font-family: 'Orbitron'; font-size: 11px; cursor: pointer; color: #fff;
         }
-        .call { background: linear-gradient(180deg, #22c55e, #166534); box-shadow: 0 4px 0 #052e16; }
-        .hang { background: linear-gradient(180deg, #ef4444, #991b1b); box-shadow: 0 4px 0 #450a0a; }
+        .call { background: #16a34a; box-shadow: 0 4px 0 #052e16; }
+        .hang { background: #dc2626; box-shadow: 0 4px 0 #450a0a; }
 
         .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .key {
-            background: linear-gradient(145deg, #334155, #1e293b); height: 50px;
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 20px; font-weight: bold; cursor: pointer;
-            border-bottom: 4px solid #000; transition: 0.1s;
+            background: #1e293b; height: 50px; border-radius: 12px; display: flex; 
+            align-items: center; justify-content: center; color: #fff; font-size: 20px; 
+            font-weight: bold; cursor: pointer; border-bottom: 4px solid #000;
         }
         .key:active { transform: translateY(3px); border-bottom-width: 1px; }
 
@@ -103,7 +96,7 @@
 <div id="sms-pop">
     <div style="font-size:24px">📬</div>
     <div>
-        <strong id="sms-title" style="font-size:12px; display:block">SYSTEM</strong>
+        <strong id="sms-title" style="font-size:12px; display:block">NOTIF</strong>
         <p id="sms-msg" style="font-size:11px; color:#475569; margin:0"></p>
     </div>
 </div>
@@ -112,15 +105,15 @@
     <div class="bezel">
         <div class="lcd-screen" id="lcd">
             <div id="lcd-init" style="text-align:center; padding-top:60px;">
-                *** RSOS AGENT ***<br>ECOSYSTEM ACCESS<br>------------------<br>DIAL *120# TO LOG IN
+                RSOS GATEWAY [EC]<br>------------------<br>DIAL *120#<br>TO SYNC DEVICE
             </div>
             <div id="lcd-main" style="display:none; height:100%; flex-direction: column;">
                 <div class="lcd-header">
-                    <span id="h-name">USER</span> <span id="h-loc">LOCATION</span>
+                    <span id="h-name">USER</span> <span id="h-loc">LOC</span>
                 </div>
-                <div class="lcd-body" id="l-body">MENU LOADING...</div>
+                <div class="lcd-body" id="l-body">CONTENT</div>
                 <div class="lcd-footer">
-                    <span class="xp-label">GPS PROGRESS: <span id="rank">RANK 1</span></span>
+                    <div style="font-size:9px; font-weight:bold; margin-bottom:2px">TRACKING PROGRESS</div>
                     <div class="xp-track"><div id="xp-fill"></div></div>
                 </div>
             </div>
@@ -156,9 +149,15 @@
     let xp = 20;
 
     const DB = {
-        "1010": { name: "Avela", type: "JOBSEEKER", loc: "Gqeberha", xp: 35, rank: "Candidate" },
-        "2020": { name: "Sizwe", type: "SMME", loc: "Mthatha", xp: 15, rank: "Startup" }
+        "1010": { name: "Avela", type: "SEEKER", loc: "GQ", xp: 35 },
+        "2020": { name: "Sizwe", type: "SMME", loc: "MT", xp: 15 }
     };
+
+    const NEWS = [
+        "• Gqeberha Job Fair Sat!",
+        "• SEFA Grant: Open EL",
+        "• Mthatha Hub Launching"
+    ];
 
     function press(n) { document.getElementById('buffer').innerText += n; }
 
@@ -166,56 +165,77 @@
         const val = document.getElementById('buffer').innerText;
         document.getElementById('buffer').innerText = "";
 
-        if(state === "IDLE" && val === "*120#") {
-            state = "AUTH";
-            drawInit("SECURITY CHECK\n-----------------\nEnter 4-Digit PIN:");
+        // 1. GLOBAL VALIDATION: Check for empty input
+        if (val === "" && state !== "IDLE") {
+            triggerSMS("ERROR", "Invalid Input. Please select an option.");
             return;
         }
 
-        if(state === "AUTH") {
-            if(DB[val]) {
+        if (state === "IDLE") {
+            if (val === "*120#") {
+                state = "AUTH";
+                drawInit("IDENTITY SECURITY\n-----------------\nEnter 4-Digit PIN:");
+            } else {
+                triggerSMS("VALIDATION", "Incorrect MMI code. Dial *120#");
+            }
+            return;
+        }
+
+        if (state === "AUTH") {
+            if (DB[val]) {
                 user = DB[val];
                 xp = user.xp;
                 state = "DASHBOARD";
                 renderDashboard();
             } else {
-                drawInit("PIN NOT FOUND\nTry 1010 or 2020\n\nPIN:");
+                drawInit("ACCESS DENIED\nInvalid PIN.\n\nPIN:");
+                triggerSMS("SECURITY", "Unauthorized Access Attempt.");
             }
             return;
         }
 
-        if(state === "DASHBOARD") {
-            if(val === "1") { state = "SKILLS"; renderSkills(); }
-            else if(val === "2") { state = "MATCH"; renderMatch(); }
-            else if(val === "0") terminate();
-        } else if(state === "SKILLS" || state === "MATCH") {
-            if(val === "1" || val === "2") {
-                confirmAction(val);
-            } else if(val === "9") {
+        if (state === "DASHBOARD") {
+            // Choice Validation
+            if (val === "1") { state = "SKILLS"; renderSkills(); }
+            else if (val === "2") { state = "MATCH"; renderMatch(); }
+            else if (val === "3") { state = "NEWS"; renderNews(); }
+            else if (val === "0") terminate();
+            else triggerSMS("INVALID", "Select 1, 2, 3 or 0.");
+        } 
+        else if (state === "SKILLS" || state === "MATCH" || state === "NEWS") {
+            if (val === "9") {
                 state = "DASHBOARD";
                 renderDashboard();
+            } else if (state !== "NEWS" && (val === "1" || val === "2")) {
+                confirmAction(val);
+            } else {
+                triggerSMS("INVALID", "Press 9 to return.");
             }
         }
     }
 
     function renderDashboard() {
-        const sub = user.type === "JOBSEEKER" ? "Skills GPS" : "Growth Path";
+        const sub = user.type === "SEEKER" ? "Skills GPS" : "Growth Engine";
         updateLCD(`1 ${sub}\n2 Match/Apply\n3 Announcements\n0 Exit`);
     }
 
     function renderSkills() {
-        const gap = user.type === "JOBSEEKER" ? "Digital Cert" : "Tax Compliance";
-        updateLCD(`GPS GAP FOUND:\nTarget: ${gap}\n\n1 Apply for Course\n9 Back`);
+        const path = user.type === "SEEKER" ? "Tech Skills" : "Tax/SARS Prep";
+        updateLCD(`CAREER GPS:\nNext: ${path}\n\n1 Register Now\n9 Back`);
     }
 
     function renderMatch() {
-        const o1 = user.type === "JOBSEEKER" ? "Internship (EL)" : "SEFA Grant R50k";
-        updateLCD(`GEO-MATCHES FOUND:\n1 ${o1}\n2 Retail Role (GQ)\n\n9 Back`);
+        const job = user.type === "SEEKER" ? "Intern (Gqeberha)" : "Grant (R50k)";
+        updateLCD(`GEO-MATCHES:\n1 ${job}\n2 Admin (EL)\n\n9 Back`);
+    }
+
+    function renderNews() {
+        updateLCD(`ANNOUNCEMENTS:\n${NEWS.join('\n')}\n\n9 Back`);
     }
 
     function confirmAction(opt) {
         xp = Math.min(xp + 20, 100);
-        triggerSMS("SUCCESS", "Action logged to RSOS Ecosystem. Profile leveled up!");
+        triggerSMS("SUCCESS", "Application logged and tracked in RSOS Database.");
         state = "DASHBOARD";
         renderDashboard();
     }
@@ -235,7 +255,6 @@
         document.getElementById('h-loc').innerText = user.loc;
         document.getElementById('l-body').innerText = body;
         document.getElementById('xp-fill').style.width = xp + "%";
-        document.getElementById('rank').innerText = xp > 70 ? "EXPERT" : "LEVEL 1";
     }
 
     function drawInit(txt) {
@@ -245,8 +264,9 @@
     }
 
     function terminate() {
-        state = "IDLE"; user = null; xp = 20;
-        drawInit("*** RSOS AGENT ***\n\nSESSION ENDED\n\nDIAL *120#");
+        state = "IDLE"; user = null; xp = 0;
+        document.getElementById('xp-fill').style.width = "0%";
+        drawInit("RSOS GATEWAY [EC]\n\nSESSION ENDED\n\nDIAL *120#");
     }
 </script>
 </body>
