@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RSOS NextGen v6.0</title>
+    <title>RSOS Strategic Ecosystem</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Share+Tech+Mono&family=Inter:wght@400;700&display=swap');
 
         :root {
-            --case: #0f172a;
-            --lcd: #87ad34;
-            --lcd-ink: #24310e;
-            --glow: #0ea5e9;
-            --xp-bar: #166534;
+            --phone: #0f172a;
+            --lcd: #94b43b;
+            --ink: #1a2408;
+            --sky: #0ea5e9;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; transition: 0.3s; }
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: 0.2s; }
 
         body {
             background: #020617;
@@ -24,111 +23,104 @@
             justify-content: center;
             align-items: center;
             font-family: 'Inter', sans-serif;
-            overflow: hidden;
         }
 
-        /* --- NOTIFICATIONS --- */
-        #sms-pop {
+        /* --- NOTIFICATION POPUP --- */
+        #notif {
             position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
             width: 320px; background: white; border-radius: 12px; padding: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5); z-index: 999;
-            border-top: 4px solid var(--glow); display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); z-index: 1000;
+            border-left: 6px solid var(--sky); display: flex; align-items: center; gap: 10px;
         }
-        #sms-pop.active { top: 20px; }
+        #notif.active { top: 20px; }
 
-        /* --- THE RUGGED DEVICE --- */
-        .frame {
-            width: 360px; background: var(--case); border-radius: 50px;
-            padding: 40px 25px; border: 4px solid #334155;
-            box-shadow: 0 0 50px rgba(14, 165, 233, 0.2); position: relative;
-        }
-
-        .frame::after {
-            content: "EC-RSOS AGENT • GQEBERHA HUB";
-            position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
-            font-size: 8px; color: #475569; letter-spacing: 2px;
+        /* --- HARDWARE --- */
+        .device {
+            width: 360px; background: var(--phone); border-radius: 50px;
+            padding: 45px 25px; border: 4px solid #334155;
+            box-shadow: 0 0 80px rgba(14, 165, 233, 0.15); position: relative;
         }
 
-        .bezel { background: #000; padding: 10px; border-radius: 12px; margin-bottom: 20px; }
+        .device::before {
+            content: "RSOS INTELLIGENT AGENT • EC";
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            font-family: 'Orbitron', sans-serif; font-size: 9px; color: var(--sky); letter-spacing: 2px;
+        }
+
+        .screen-well { background: #000; padding: 10px; border-radius: 12px; margin-bottom: 20px; }
 
         .lcd {
-            background: var(--lcd); height: 250px; border-radius: 4px; padding: 15px;
-            color: var(--lcd-ink); font-family: 'Share Tech Mono', monospace;
-            font-size: 14px; line-height: 1.4; position: relative;
+            background: var(--lcd); height: 260px; border-radius: 4px; padding: 15px;
+            color: var(--ink); font-family: 'Share Tech Mono', monospace;
+            font-size: 14px; line-height: 1.4; position: relative; overflow: hidden;
         }
 
-        /* --- XP PROGRESS BAR --- */
-        .xp-container {
-            width: 100%; height: 8px; background: rgba(0,0,0,0.2);
-            border-radius: 10px; margin-top: 10px; overflow: hidden;
-            display: none; /* Only show in dashboard */
-        }
-        #xp-fill { height: 100%; width: 30%; background: var(--xp-bar); transition: width 1s; }
+        /* --- PROGRESSION XP --- */
+        .xp-bar { width: 100%; height: 6px; background: rgba(0,0,0,0.1); border-radius: 5px; margin: 8px 0; display: none; }
+        #xp-lvl { height: 100%; width: 20%; background: #166534; }
 
-        .input-box {
+        .mmi-bar {
             width: 100%; background: #000; color: #22c55e; border: 1px solid #334155;
             padding: 12px; text-align: center; margin-bottom: 20px;
             font-family: 'Share Tech Mono', monospace; font-size: 22px; border-radius: 8px;
         }
 
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 
         .key {
             background: #1e293b; height: 50px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            color: white; font-weight: bold; cursor: pointer;
-            border-bottom: 4px solid #000;
+            color: white; font-weight: bold; cursor: pointer; border-bottom: 4px solid #000;
         }
-
         .key:active { transform: translateY(2px); border-bottom-width: 1px; }
 
-        .controls { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .actions { display: flex; justify-content: space-between; margin-bottom: 15px; }
         .btn {
             width: 48%; padding: 12px; border-radius: 8px; border: none;
-            color: white; font-weight: bold; cursor: pointer; font-size: 10px;
-            font-family: 'Orbitron', sans-serif;
+            color: white; font-weight: bold; cursor: pointer; font-size: 11px;
+            font-family: 'Orbitron', sans-serif; text-transform: uppercase;
         }
-        .btn-go { background: #16a34a; }
-        .btn-stop { background: #dc2626; }
+        .btn-ok { background: #16a34a; }
+        .btn-no { background: #dc2626; }
 
     </style>
 </head>
 <body>
 
-<div id="sms-pop">
-    <span style="font-size:24px">✉️</span>
+<div id="notif">
+    <div style="font-size:24px">📬</div>
     <div>
-        <strong style="font-size:12px; display:block">RSOS ECOSYSTEM</strong>
-        <p id="sms-msg" style="font-size:11px; color:#475569; margin:0"></p>
+        <strong id="notif-title" style="font-size:12px; display:block">SYSTEM MESSAGE</strong>
+        <p id="notif-body" style="font-size:11px; color:#475569; margin:0"></p>
     </div>
 </div>
 
-<div class="frame">
-    <div class="bezel">
+<div class="device">
+    <div class="screen-well">
         <div class="lcd" id="lcd">
-            <div id="boot" style="text-align:center; padding-top:40px">
-                [ RSOS INTELLIGENT AGENT ]<br>
-                v6.0-PRO_STABLE<br><br>
-                GEO: GQEBERHA, EC<br>
-                STATUS: ENCRYPTED<br><br>
+            <div id="idle-screen" style="text-align:center; padding-top:40px">
+                *** RSOS AGENT ***<br>
+                SKILLS & SMME NEXUS<br><br>
+                GEO: EASTERN CAPE<br>
+                REGIONS: GQ, EL, MT<br><br>
                 DIAL *120#
             </div>
-            <div id="main" style="display:none">
-                <span id="user-header"></span>
-                <div class="xp-container" id="xp-box"><div id="xp-fill"></div></div>
-                <div id="menu-text" style="margin-top:10px"></div>
+            <div id="app-screen" style="display:none">
+                <b id="user-info"></b>
+                <div class="xp-bar" id="xp-bar"><div id="xp-lvl"></div></div>
+                <div id="menu-content" style="margin-top:10px; white-space: pre-wrap;"></div>
             </div>
         </div>
     </div>
 
-    <div id="input" class="input-box"></div>
+    <div id="mmi-input" class="mmi-bar"></div>
 
-    <div class="controls">
-        <button class="btn btn-go" onclick="submit()">SEND</button>
-        <button class="btn btn-stop" onclick="reset()">END</button>
+    <div class="actions">
+        <button class="btn btn-ok" onclick="handleSend()">SEND</button>
+        <button class="btn btn-no" onclick="handleEnd()">END</button>
     </div>
 
-    <div class="keypad">
+    <div class="keys">
         <div class="key" onclick="press('1')">1</div>
         <div class="key" onclick="press('2')">2</div>
         <div class="key" onclick="press('3')">3</div>
@@ -147,101 +139,114 @@
 <script>
     let state = "IDLE";
     let user = null;
-    let xp = 30;
+    let xpPercent = 20;
 
-    const DB = {
-        "1010": { name: "Avela", type: "GRADUATE", city: "Gqeberha", apps: 0 },
-        "2020": { name: "Luvuyo", type: "SMME", city: "Mthatha", apps: 0 }
+    const USERS = {
+        "1010": { name: "Avela", type: "JOBSEEKER", loc: "Gqeberha", lvl: "Beginner", xp: 20 },
+        "2020": { name: "Luvuyo", type: "SMME", loc: "Mthatha", lvl: "Startup", xp: 15 }
     };
 
-    function press(n) { document.getElementById('input').innerText += n; }
+    function press(n) { document.getElementById('mmi-input').innerText += n; }
 
-    function submit() {
-        const val = document.getElementById('input').innerText;
-        document.getElementById('input').innerText = "";
-        
+    function handleSend() {
+        const val = document.getElementById('mmi-input').innerText;
+        document.getElementById('mmi-input').innerText = "";
+
         if(state === "IDLE" && val === "*120#") {
             state = "AUTH";
-            showLCD("AUTH REQUIRED\n----------------\nEnter Member PIN:");
+            updateLCD("IDENTITY CHECK\n---------------\nEnter Registered PIN:");
             return;
         }
 
         if(state === "AUTH") {
-            if(DB[val]) {
-                user = DB[val];
-                state = "DASHBOARD";
-                renderDashboard();
+            if(USERS[val]) {
+                user = USERS[val];
+                xpPercent = user.xp;
+                state = "MAIN";
+                renderMain();
             } else {
-                showLCD("INVALID PIN\nTry 1010 or 2020\n\nPIN:");
+                updateLCD("INVALID PIN\nTry 1010 (Seeker)\nTry 2020 (SMME)\n\nPIN:");
             }
             return;
         }
 
-        if(state === "DASHBOARD") {
+        if(state === "MAIN") {
             if(val === "1") { state = "SKILLS"; renderSkills(); }
-            else if(val === "2") { state = "APPLY"; renderApply(); }
-            else if(val === "0") reset();
-        } else if(state === "APPLY") {
+            else if(val === "2") { state = "MATCH"; renderMatch(); }
+            else if(val === "3") { state = "COORD"; renderCoord(); }
+            else if(val === "0") handleEnd();
+        } else if(state === "MATCH" || state === "SKILLS") {
             if(val === "1" || val === "2") {
-                applySuccess(val);
+                confirmAction(val);
             } else if(val === "9") {
-                state = "DASHBOARD";
-                renderDashboard();
+                state = "MAIN";
+                renderMain();
             }
-        } else if (val === "9") {
-            state = "DASHBOARD";
-            renderDashboard();
+        } else if(val === "9") {
+            state = "MAIN";
+            renderMain();
         }
     }
 
-    function renderDashboard() {
-        document.getElementById('boot').style.display = "none";
-        document.getElementById('main').style.display = "block";
-        document.getElementById('xp-box').style.display = "block";
-        document.getElementById('user-header').innerText = `AGENT: ${user.name} (${user.city})\nLEVEL: ${user.apps + 1} (Ecosystem Explorer)`;
-        document.getElementById('menu-text').innerText = `1 Skills GPS\n2 Apply (Matches)\n3 Announcements\n0 Exit`;
-        document.getElementById('xp-fill').style.width = xp + "%";
+    function renderMain() {
+        showAppUI();
+        const sub = user.type === "JOBSEEKER" ? "Skills GPS" : "Growth Path";
+        document.getElementById('user-info').innerText = `${user.name} • ${user.loc}\n[${user.lvl}]`;
+        document.getElementById('menu-content').innerText = `1 ${sub}\n2 Apply for Opportunities\n3 Ecosystem Status\n0 Exit`;
+        document.getElementById('xp-lvl').style.width = xpPercent + "%";
     }
 
     function renderSkills() {
-        document.getElementById('xp-box').style.display = "none";
-        document.getElementById('menu-text').innerText = `SKILLS GPS:\nGAP: Digital Literacy\nPATH: Complete Excel Course\nMATCH: R5k Stipend Role\n\n9 Back`;
+        if(user.type === "JOBSEEKER") {
+            document.getElementById('menu-content').innerText = `SKILLS GPS (Jobs):\nGAP: Digital Comms\nCOURSE: MS Office Cert\nGRANT: R3000 Stipend\n\n1 Apply for Course\n9 Back`;
+        } else {
+            document.getElementById('menu-content').innerText = `GROWTH PATH (SMME):\nGAP: Compliance/Tax\nWORKSHOP: SARS Readiness\nMATCH: Tenders Level 1\n\n1 Register Workshop\n9 Back`;
+        }
     }
 
-    function renderApply() {
-        document.getElementById('xp-box').style.display = "none";
-        const o1 = user.type === "GRADUATE" ? "IT Intern (GQ)" : "Staffing Grant";
-        const o2 = user.type === "GRADUATE" ? "Admin (GQ)" : "Tech Upgrade";
-        document.getElementById('menu-text').innerText = `GEO-MATCHES (GQ):\n1 ${o1}\n2 ${o2}\n\n9 Back`;
+    function renderMatch() {
+        const o1 = user.type === "JOBSEEKER" ? "Admin (Gqeberha)" : "SEFA Grant R50k";
+        const o2 = user.type === "JOBSEEKER" ? "Retail (Mthatha)" : "SEDA Mentorship";
+        document.getElementById('menu-content').innerText = `MATCHED FOR YOU:\n1 ${o1}\n2 ${o2}\n\n9 Back`;
     }
 
-    function applySuccess(opt) {
-        xp += 20;
-        user.apps += 1;
-        triggerSMS(`SUCCESS! Application for Match ${opt} logged. Progression Rank Up!`);
-        state = "DASHBOARD";
-        renderDashboard();
+    function renderCoord() {
+        document.getElementById('menu-content').innerText = `ECOSYSTEM HUB:\n- Active SETAs: 4\n- Local Jobs: 124\n- Active SMMEs: 89\n\n9 Back to Menu`;
     }
 
-    function triggerSMS(msg) {
-        document.getElementById('sms-msg').innerText = msg;
-        const sms = document.getElementById('sms-pop');
-        sms.classList.add('active');
-        setTimeout(() => sms.classList.remove('active'), 4000);
+    function confirmAction(opt) {
+        xpPercent += 15;
+        triggerNotif("ACTION LOGGED", `Success! Your ${user.type} profile has been updated. GPS level increasing.`);
+        state = "MAIN";
+        renderMain();
     }
 
-    function showLCD(txt) {
-        document.getElementById('boot').style.display = "block";
-        document.getElementById('main').style.display = "none";
-        document.getElementById('boot').innerText = txt;
+    function triggerNotif(title, body) {
+        document.getElementById('notif-title').innerText = title;
+        document.getElementById('notif-body').innerText = body;
+        const n = document.getElementById('notif');
+        n.classList.add('active');
+        setTimeout(() => n.classList.remove('active'), 5000);
     }
 
-    function reset() {
+    function showAppUI() {
+        document.getElementById('idle-screen').style.display = "none";
+        document.getElementById('app-screen').style.display = "block";
+        document.getElementById('xp-bar').style.display = "block";
+    }
+
+    function updateLCD(txt) {
+        document.getElementById('idle-screen').style.display = "block";
+        document.getElementById('app-screen').style.display = "none";
+        document.getElementById('idle-screen').innerText = txt;
+    }
+
+    function handleEnd() {
         state = "IDLE";
         user = null;
-        xp = 30;
-        document.getElementById('xp-box').style.display = "none";
-        showLCD("[ RSOS INTELLIGENT AGENT ]\n\nSESSION ENDED\n\nDIAL *120#");
+        xpPercent = 20;
+        document.getElementById('xp-bar').style.display = "none";
+        updateLCD("*** RSOS AGENT ***\n\nSESSION ENDED\n\nDIAL *120#");
     }
 </script>
 </body>
