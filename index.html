@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSOS NextGen v6.0</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Share+Tech+Mono&family=Inter:wght@400;700&display=swap');
+
+        :root {
+            --case: #0f172a;
+            --lcd: #87ad34;
+            --lcd-ink: #24310e;
+            --glow: #0ea5e9;
+            --xp-bar: #166534;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; transition: 0.3s; }
+
+        body {
+            background: #020617;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+
+        /* --- NOTIFICATIONS --- */
+        #sms-pop {
+            position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+            width: 320px; background: white; border-radius: 12px; padding: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); z-index: 999;
+            border-top: 4px solid var(--glow); display: flex; align-items: center; gap: 10px;
+        }
+        #sms-pop.active { top: 20px; }
+
+        /* --- THE RUGGED DEVICE --- */
+        .frame {
+            width: 360px; background: var(--case); border-radius: 50px;
+            padding: 40px 25px; border: 4px solid #334155;
+            box-shadow: 0 0 50px rgba(14, 165, 233, 0.2); position: relative;
+        }
+
+        .frame::after {
+            content: "EC-RSOS AGENT • GQEBERHA HUB";
+            position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
+            font-size: 8px; color: #475569; letter-spacing: 2px;
+        }
+
+        .bezel { background: #000; padding: 10px; border-radius: 12px; margin-bottom: 20px; }
+
+        .lcd {
+            background: var(--lcd); height: 250px; border-radius: 4px; padding: 15px;
+            color: var(--lcd-ink); font-family: 'Share Tech Mono', monospace;
+            font-size: 14px; line-height: 1.4; position: relative;
+        }
+
+        /* --- XP PROGRESS BAR --- */
+        .xp-container {
+            width: 100%; height: 8px; background: rgba(0,0,0,0.2);
+            border-radius: 10px; margin-top: 10px; overflow: hidden;
+            display: none; /* Only show in dashboard */
+        }
+        #xp-fill { height: 100%; width: 30%; background: var(--xp-bar); transition: width 1s; }
+
+        .input-box {
+            width: 100%; background: #000; color: #22c55e; border: 1px solid #334155;
+            padding: 12px; text-align: center; margin-bottom: 20px;
+            font-family: 'Share Tech Mono', monospace; font-size: 22px; border-radius: 8px;
+        }
+
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+        .key {
+            background: #1e293b; height: 50px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: bold; cursor: pointer;
+            border-bottom: 4px solid #000;
+        }
+
+        .key:active { transform: translateY(2px); border-bottom-width: 1px; }
+
+        .controls { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .btn {
+            width: 48%; padding: 12px; border-radius: 8px; border: none;
+            color: white; font-weight: bold; cursor: pointer; font-size: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .btn-go { background: #16a34a; }
+        .btn-stop { background: #dc2626; }
+
+    </style>
+</head>
+<body>
+
+<div id="sms-pop">
+    <span style="font-size:24px">✉️</span>
+    <div>
+        <strong style="font-size:12px; display:block">RSOS ECOSYSTEM</strong>
+        <p id="sms-msg" style="font-size:11px; color:#475569; margin:0"></p>
+    </div>
+</div>
+
+<div class="frame">
+    <div class="bezel">
+        <div class="lcd" id="lcd">
+            <div id="boot" style="text-align:center; padding-top:40px">
+                [ RSOS INTELLIGENT AGENT ]<br>
+                v6.0-PRO_STABLE<br><br>
+                GEO: GQEBERHA, EC<br>
+                STATUS: ENCRYPTED<br><br>
+                DIAL *120#
+            </div>
+            <div id="main" style="display:none">
+                <span id="user-header"></span>
+                <div class="xp-container" id="xp-box"><div id="xp-fill"></div></div>
+                <div id="menu-text" style="margin-top:10px"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="input" class="input-box"></div>
+
+    <div class="controls">
+        <button class="btn btn-go" onclick="submit()">SEND</button>
+        <button class="btn btn-stop" onclick="reset()">END</button>
+    </div>
+
+    <div class="keypad">
+        <div class="key" onclick="press('1')">1</div>
+        <div class="key" onclick="press('2')">2</div>
+        <div class="key" onclick="press('3')">3</div>
+        <div class="key" onclick="press('4')">4</div>
+        <div class="key" onclick="press('5')">5</div>
+        <div class="key" onclick="press('6')">6</div>
+        <div class="key" onclick="press('7')">7</div>
+        <div class="key" onclick="press('8')">8</div>
+        <div class="key" onclick="press('9')">9</div>
+        <div class="key" onclick="press('*')">*</div>
+        <div class="key" onclick="press('0')">0</div>
+        <div class="key" onclick="press('#')">#</div>
+    </div>
+</div>
+
+<script>
+    let state = "IDLE";
+    let user = null;
+    let xp = 30;
+
+    const DB = {
+        "1010": { name: "Avela", type: "GRADUATE", city: "Gqeberha", apps: 0 },
+        "2020": { name: "Luvuyo", type: "SMME", city: "Mthatha", apps: 0 }
+    };
+
+    function press(n) { document.getElementById('input').innerText += n; }
+
+    function submit() {
+        const val = document.getElementById('input').innerText;
+        document.getElementById('input').innerText = "";
+        
+        if(state === "IDLE" && val === "*120#") {
+            state = "AUTH";
+            showLCD("AUTH REQUIRED\n----------------\nEnter Member PIN:");
+            return;
+        }
+
+        if(state === "AUTH") {
+            if(DB[val]) {
+                user = DB[val];
+                state = "DASHBOARD";
+                renderDashboard();
+            } else {
+                showLCD("INVALID PIN\nTry 1010 or 2020\n\nPIN:");
+            }
+            return;
+        }
+
+        if(state === "DASHBOARD") {
+            if(val === "1") { state = "SKILLS"; renderSkills(); }
+            else if(val === "2") { state = "APPLY"; renderApply(); }
+            else if(val === "0") reset();
+        } else if(state === "APPLY") {
+            if(val === "1" || val === "2") {
+                applySuccess(val);
+            } else if(val === "9") {
+                state = "DASHBOARD";
+                renderDashboard();
+            }
+        } else if (val === "9") {
+            state = "DASHBOARD";
+            renderDashboard();
+        }
+    }
+
+    function renderDashboard() {
+        document.getElementById('boot').style.display = "none";
+        document.getElementById('main').style.display = "block";
+        document.getElementById('xp-box').style.display = "block";
+        document.getElementById('user-header').innerText = `AGENT: ${user.name} (${user.city})\nLEVEL: ${user.apps + 1} (Ecosystem Explorer)`;
+        document.getElementById('menu-text').innerText = `1 Skills GPS\n2 Apply (Matches)\n3 Announcements\n0 Exit`;
+        document.getElementById('xp-fill').style.width = xp + "%";
+    }
+
+    function renderSkills() {
+        document.getElementById('xp-box').style.display = "none";
+        document.getElementById('menu-text').innerText = `SKILLS GPS:\nGAP: Digital Literacy\nPATH: Complete Excel Course\nMATCH: R5k Stipend Role\n\n9 Back`;
+    }
+
+    function renderApply() {
+        document.getElementById('xp-box').style.display = "none";
+        const o1 = user.type === "GRADUATE" ? "IT Intern (GQ)" : "Staffing Grant";
+        const o2 = user.type === "GRADUATE" ? "Admin (GQ)" : "Tech Upgrade";
+        document.getElementById('menu-text').innerText = `GEO-MATCHES (GQ):\n1 ${o1}\n2 ${o2}\n\n9 Back`;
+    }
+
+    function applySuccess(opt) {
+        xp += 20;
+        user.apps += 1;
+        triggerSMS(`SUCCESS! Application for Match ${opt} logged. Progression Rank Up!`);
+        state = "DASHBOARD";
+        renderDashboard();
+    }
+
+    function triggerSMS(msg) {
+        document.getElementById('sms-msg').innerText = msg;
+        const sms = document.getElementById('sms-pop');
+        sms.classList.add('active');
+        setTimeout(() => sms.classList.remove('active'), 4000);
+    }
+
+    function showLCD(txt) {
+        document.getElementById('boot').style.display = "block";
+        document.getElementById('main').style.display = "none";
+        document.getElementById('boot').innerText = txt;
+    }
+
+    function reset() {
+        state = "IDLE";
+        user = null;
+        xp = 30;
+        document.getElementById('xp-box').style.display = "none";
+        showLCD("[ RSOS INTELLIGENT AGENT ]\n\nSESSION ENDED\n\nDIAL *120#");
+    }
+</script>
+</body>
+</html>
