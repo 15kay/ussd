@@ -3,221 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RSOS Advanced Nexus</title>
+    <title>RSOS Refactored Hub</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Share+Tech+Mono&family=Inter:wght@400;700&display=swap');
-        :root { --case: #0f172a; --lcd: #94b43b; --ink: #1a2408; --glow: #38bdf8; --success: #16a34a; }
-        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        body { background: #020617; height: 100vh; display: flex; justify-content: center; align-items: center; font-family: 'Inter', sans-serif; overflow: hidden; }
-
-        /* --- ADVANCED SMS NOTIFICATION --- */
-        #notif { position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 340px; background: #fff; border-radius: 16px; padding: 18px; box-shadow: 0 25px 50px rgba(0,0,0,0.7); z-index: 9999; border-top: 5px solid var(--success); display: flex; align-items: flex-start; gap: 12px; }
-        #notif.active { top: 30px; }
-        .notif-icon { background: #dcfce7; border-radius: 50%; padding: 8px; font-size: 20px; }
-
-        /* --- RUGGEDIZED HARDWARE --- */
-        .industrial-phone { width: 380px; background: var(--case); border-radius: 60px; padding: 50px 30px; border: 6px solid #334155; position: relative; box-shadow: 0 0 120px rgba(14, 165, 233, 0.1); }
-        .industrial-phone::after { content: "RSOS STRATEGIC AGENT • v8.0-ADV"; position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-family: 'Orbitron'; font-size: 9px; color: var(--glow); letter-spacing: 3px; opacity: 0.7; }
         
-        .bezel { background: #000; padding: 15px; border-radius: 15px; margin-bottom: 25px; box-shadow: inset 0 0 30px #000; border: 1px solid #1e293b; }
-        .lcd { background: var(--lcd); height: 280px; border-radius: 6px; padding: 18px; color: var(--ink); font-family: 'Share Tech Mono', monospace; font-size: 14px; line-height: 1.5; position: relative; display: flex; flex-direction: column; }
+        :root { 
+            --frame: #1e293b; 
+            --lcd-bg: #94b43b; 
+            --lcd-ink: #1a2408; 
+            --glow: #38bdf8; 
+            --accent: #166534;
+        }
 
-        /* --- DYNAMIC XP TRACKER --- */
-        .progress-zone { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.1); }
-        .xp-text { font-size: 10px; font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 4px; }
-        .bar-bg { width: 100%; height: 10px; background: rgba(0,0,0,0.15); border-radius: 10px; overflow: hidden; }
-        #bar-fill { height: 100%; width: 25%; background: var(--success); transition: width 1.2s ease; }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
 
-        .mmi-view { width: 100%; background: #000; color: #4ade80; border: 1px solid #334155; padding: 12px; text-align: center; margin-bottom: 25px; font-family: 'Share Tech Mono'; font-size: 26px; border-radius: 12px; height: 60px; text-shadow: 0 0 10px rgba(74, 222, 128, 0.3); }
-        .key-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-        .k-btn { background: linear-gradient(145deg, #1e293b, #0f172a); height: 55px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #f8fafc; font-size: 22px; font-weight: bold; cursor: pointer; border-bottom: 5px solid #000; }
-        .k-btn:active { transform: translateY(4px); border-bottom-width: 1px; }
+        body { 
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            height: 100vh; display: flex; justify-content: center; align-items: center; 
+            font-family: 'Inter', sans-serif; overflow: hidden;
+        }
 
-        .ctrls { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .action-btn { width: 48%; padding: 16px; border-radius: 12px; border: none; color: #fff; font-weight: bold; cursor: pointer; font-size: 12px; font-family: 'Orbitron'; box-shadow: 0 4px 0 #000; }
-        .btn-call { background: linear-gradient(180deg, #22c55e, #166534); }
-        .btn-hang { background: linear-gradient(180deg, #ef4444, #991b1b); }
+        /* --- THE NOTIFICATION --- */
+        #sms-pop {
+            position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+            width: 320px; background: #fff; border-radius: 12px; padding: 15px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6); z-index: 999;
+            border-left: 5px solid var(--glow); display: flex; align-items: center; gap: 10px;
+            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #sms-pop.active { top: 25px; }
+
+        /* --- THE PHONE FRAME --- */
+        .phone-shell {
+            width: 360px; background: var(--frame); border-radius: 50px;
+            padding: 45px 20px 30px 20px; border: 4px solid #334155;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8); position: relative;
+        }
+
+        .phone-shell::before {
+            content: "RSOS INTELLIGENT AGENT"; position: absolute; top: 18px; left: 50%;
+            transform: translateX(-50%); font-family: 'Orbitron'; font-size: 10px;
+            color: var(--glow); letter-spacing: 2px;
+        }
+
+        /* --- REFACTORED LCD SCREEN --- */
+        .bezel {
+            background: #000; padding: 10px; border-radius: 12px; margin-bottom: 20px;
+            box-shadow: inset 0 0 15px #000;
+        }
+
+        .lcd-screen {
+            background: var(--lcd-bg); height: 260px; border-radius: 4px;
+            color: var(--lcd-ink); font-family: 'Share Tech Mono', monospace;
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        /* LCD Internal Layout */
+        .lcd-header { 
+            font-size: 11px; font-weight: bold; padding: 8px; 
+            border-bottom: 1px solid rgba(0,0,0,0.15); display: flex; justify-content: space-between;
+        }
+        .lcd-body { flex-grow: 1; padding: 10px; font-size: 13px; line-height: 1.4; white-space: pre-wrap; }
+        .lcd-footer { padding: 8px; border-top: 1px solid rgba(0,0,0,0.15); }
+
+        /* XP Bar */
+        .xp-label { font-size: 9px; font-weight: bold; margin-bottom: 3px; display: block; }
+        .xp-track { width: 100%; height: 6px; background: rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden; }
+        #xp-fill { height: 100%; width: 20%; background: var(--accent); transition: width 0.8s ease; }
+
+        /* --- INPUTS --- */
+        .mmi-display {
+            width: 100%; background: #000; color: #4ade80; border: 1px solid #334155;
+            padding: 10px; text-align: center; margin-bottom: 20px;
+            font-family: 'Share Tech Mono'; font-size: 22px; border-radius: 8px; height: 50px;
+        }
+
+        .btn-group { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .action-btn { 
+            width: 48%; padding: 14px; border-radius: 10px; border: none; font-weight: bold;
+            font-family: 'Orbitron'; font-size: 11px; cursor: pointer; color: #fff;
+        }
+        .call { background: linear-gradient(180deg, #22c55e, #166534); box-shadow: 0 4px 0 #052e16; }
+        .hang { background: linear-gradient(180deg, #ef4444, #991b1b); box-shadow: 0 4px 0 #450a0a; }
+
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .key {
+            background: linear-gradient(145deg, #334155, #1e293b); height: 50px;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 20px; font-weight: bold; cursor: pointer;
+            border-bottom: 4px solid #000; transition: 0.1s;
+        }
+        .key:active { transform: translateY(3px); border-bottom-width: 1px; }
+
     </style>
 </head>
 <body>
 
-<div id="notif">
-    <div class="notif-icon">✅</div>
+<div id="sms-pop">
+    <div style="font-size:24px">📬</div>
     <div>
-        <strong id="n-title" style="font-size:13px; display:block">ACTION REGISTERED</strong>
-        <p id="n-body" style="font-size:11px; color:#475569; margin:4px 0 0 0"></p>
+        <strong id="sms-title" style="font-size:12px; display:block">SYSTEM</strong>
+        <p id="sms-msg" style="font-size:11px; color:#475569; margin:0"></p>
     </div>
 </div>
 
-<div class="industrial-phone">
+<div class="phone-shell">
     <div class="bezel">
-        <div class="lcd" id="lcd-display">
-            <div id="boot-msg" style="text-align:center; padding-top:60px">
-                *** RSOS AGENT 8.0 ***<br>
-                EC STRATEGIC HUB<br>
-                -------------------<br>
-                STATUS: ENCRYPTED<br><br>
-                DIAL *120# TO BEGIN
+        <div class="lcd-screen" id="lcd">
+            <div id="lcd-init" style="text-align:center; padding-top:60px;">
+                *** RSOS AGENT ***<br>ECOSYSTEM ACCESS<br>------------------<br>DIAL *120# TO LOG IN
             </div>
-            <div id="app-ui" style="display:none; height: 100%;">
-                <div id="header-bar" style="border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px; margin-bottom: 10px;">
-                    <b id="user-name"></b> | <span id="user-loc"></span>
+            <div id="lcd-main" style="display:none; height:100%; flex-direction: column;">
+                <div class="lcd-header">
+                    <span id="h-name">USER</span> <span id="h-loc">LOCATION</span>
                 </div>
-                <div id="menu-area" style="white-space: pre-wrap; flex-grow: 1;"></div>
-                <div class="progress-zone">
-                    <div class="xp-text"><span>GPS PROGRESS</span> <span id="rank-name">LEVEL 1</span></div>
-                    <div class="bar-bg"><div id="bar-fill"></div></div>
+                <div class="lcd-body" id="l-body">MENU LOADING...</div>
+                <div class="lcd-footer">
+                    <span class="xp-label">GPS PROGRESS: <span id="rank">RANK 1</span></span>
+                    <div class="xp-track"><div id="xp-fill"></div></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="mmi-buffer" class="mmi-view"></div>
+    <div id="buffer" class="mmi-display"></div>
 
-    <div class="ctrls">
-        <button class="action-btn btn-call" onclick="onSend()">SEND</button>
-        <button class="action-btn btn-hang" onclick="onEnd()">END</button>
+    <div class="btn-group">
+        <button class="action-btn call" onclick="submit()">SEND</button>
+        <button class="action-btn hang" onclick="terminate()">END</button>
     </div>
 
-    <div class="key-grid">
-        <div class="k-btn" onclick="type('1')">1</div><div class="k-btn" onclick="type('2')">2</div><div class="k-btn" onclick="type('3')">3</div>
-        <div class="k-btn" onclick="type('4')">4</div><div class="k-btn" onclick="type('5')">5</div><div class="k-btn" onclick="type('6')">6</div>
-        <div class="k-btn" onclick="type('7')">7</div><div class="k-btn" onclick="type('8')">8</div><div class="k-btn" onclick="type('9')">9</div>
-        <div class="k-btn" onclick="type('*')">*</div><div class="k-btn" onclick="type('0')">0</div><div class="k-btn" onclick="type('#')">#</div>
+    <div class="keypad">
+        <div class="key" onclick="press('1')">1</div>
+        <div class="key" onclick="press('2')">2</div>
+        <div class="key" onclick="press('3')">3</div>
+        <div class="key" onclick="press('4')">4</div>
+        <div class="key" onclick="press('5')">5</div>
+        <div class="key" onclick="press('6')">6</div>
+        <div class="key" onclick="press('7')">7</div>
+        <div class="key" onclick="press('8')">8</div>
+        <div class="key" onclick="press('9')">9</div>
+        <div class="key" onclick="press('*')">*</div>
+        <div class="key" onclick="press('0')">0</div>
+        <div class="key" onclick="press('#')">#</div>
     </div>
 </div>
 
 <script>
     let state = "IDLE";
     let user = null;
-    let xp = 25;
+    let xp = 20;
 
-    const DATABASE = {
-        "1010": { name: "Zukisa", type: "JOBSEEKER", loc: "Gqeberha", xp: 30, rank: "Candidate" },
-        "2020": { name: "Sizwe", type: "SMME", loc: "East London", xp: 15, rank: "Startup" }
+    const DB = {
+        "1010": { name: "Avela", type: "JOBSEEKER", loc: "Gqeberha", xp: 35, rank: "Candidate" },
+        "2020": { name: "Sizwe", type: "SMME", loc: "Mthatha", xp: 15, rank: "Startup" }
     };
 
-    function type(n) { document.getElementById('mmi-buffer').innerText += n; }
+    function press(n) { document.getElementById('buffer').innerText += n; }
 
-    function onSend() {
-        const val = document.getElementById('mmi-buffer').innerText;
-        document.getElementById('mmi-buffer').innerText = "";
+    function submit() {
+        const val = document.getElementById('buffer').innerText;
+        document.getElementById('buffer').innerText = "";
 
-        if(state === "IDLE") {
-            if(val === "*120#") {
-                state = "AUTH";
-                drawLCD("IDENTITY SECURITY\n-------------------\nEnter 4-Digit PIN:");
-            }
+        if(state === "IDLE" && val === "*120#") {
+            state = "AUTH";
+            drawInit("SECURITY CHECK\n-----------------\nEnter 4-Digit PIN:");
             return;
         }
 
         if(state === "AUTH") {
-            if(DATABASE[val]) {
-                user = DATABASE[val];
+            if(DB[val]) {
+                user = DB[val];
                 xp = user.xp;
-                state = "MAIN";
-                renderMain();
+                state = "DASHBOARD";
+                renderDashboard();
             } else {
-                drawLCD("ACCESS DENIED\n\nPIN Not Found.\nTry 1010 or 2020.\n\nPIN:");
+                drawInit("PIN NOT FOUND\nTry 1010 or 2020\n\nPIN:");
             }
             return;
         }
 
-        if(state === "MAIN") {
-            if(val === "1") { state = "GPS_BRANCH"; renderGPSBranch(); }
+        if(state === "DASHBOARD") {
+            if(val === "1") { state = "SKILLS"; renderSkills(); }
             else if(val === "2") { state = "MATCH"; renderMatch(); }
-            else if(val === "3") { state = "HUB"; renderHub(); }
-            else if(val === "0") onEnd();
-        } 
-        else if(state === "GPS_BRANCH") {
-            if(val === "1") { state = "PATH_A"; renderPathA(); }
-            else if(val === "2") { state = "PATH_B"; renderPathB(); }
-            else if(val === "9") { state = "MAIN"; renderMain(); }
-        }
-        else if(state === "PATH_A" || state === "PATH_B" || state === "MATCH") {
+            else if(val === "0") terminate();
+        } else if(state === "SKILLS" || state === "MATCH") {
             if(val === "1" || val === "2") {
-                executeAction(val);
+                confirmAction(val);
             } else if(val === "9") {
-                state = "MAIN";
-                renderMain();
+                state = "DASHBOARD";
+                renderDashboard();
             }
         }
     }
 
-    function renderMain() {
-        showUI();
-        const gpsLabel = user.type === "JOBSEEKER" ? "Career Pathing" : "Business Growth";
-        setMenu(`1 ${gpsLabel}\n2 Match/Apply\n3 Ecosystem Stats\n0 Exit`);
+    function renderDashboard() {
+        const sub = user.type === "JOBSEEKER" ? "Skills GPS" : "Growth Path";
+        updateLCD(`1 ${sub}\n2 Match/Apply\n3 Announcements\n0 Exit`);
     }
 
-    function renderGPSBranch() {
-        if(user.type === "JOBSEEKER") {
-            setMenu(`SELECT CATEGORY:\n1 Tech/Admin (SETA A)\n2 Trade/Logistics (SETA B)\n\n9 Back`);
-        } else {
-            setMenu(`SELECT FOCUS:\n1 Compliance (Tax/Legal)\n2 Market Access (Tenders)\n\n9 Back`);
-        }
-    }
-
-    function renderPathA() {
-        const title = user.type === "JOBSEEKER" ? "TECH PATH" : "COMPLIANCE";
-        const act = user.type === "JOBSEEKER" ? "Apply: Coding Bootcamp" : "Apply: SARS Prep";
-        setMenu(`${title} GAP FOUND\nNext Step Required:\n1 ${act}\n\n9 Back`);
-    }
-
-    function renderPathB() {
-        const title = user.type === "JOBSEEKER" ? "TRADE PATH" : "MARKET ACCESS";
-        const act = user.type === "JOBSEEKER" ? "Apply: Forklift Cert" : "Apply: ESD Programme";
-        setMenu(`${title} GAP FOUND\nNext Step Required:\n1 ${act}\n\n9 Back`);
+    function renderSkills() {
+        const gap = user.type === "JOBSEEKER" ? "Digital Cert" : "Tax Compliance";
+        updateLCD(`GPS GAP FOUND:\nTarget: ${gap}\n\n1 Apply for Course\n9 Back`);
     }
 
     function renderMatch() {
-        const m1 = user.type === "JOBSEEKER" ? "Internship (EL)" : "SEFA Loan (R100k)";
-        const m2 = user.type === "JOBSEEKER" ? "Retail Role (GQ)" : "SAB Mentorship";
-        setMenu(`NEW MATCHES FOUND:\n1 ${m1}\n2 ${m2}\n\n9 Back`);
+        const o1 = user.type === "JOBSEEKER" ? "Internship (EL)" : "SEFA Grant R50k";
+        updateLCD(`GEO-MATCHES FOUND:\n1 ${o1}\n2 Retail Role (GQ)\n\n9 Back`);
     }
 
-    function renderHub() {
-        setMenu(`ECOSYSTEM PULSE:\n- SETA Partners: 6 Active\n- Hiring Hubs: Mthatha, EL\n- SMME Grants: 4 Open\n\n9 Back`);
+    function confirmAction(opt) {
+        xp = Math.min(xp + 20, 100);
+        triggerSMS("SUCCESS", "Action logged to RSOS Ecosystem. Profile leveled up!");
+        state = "DASHBOARD";
+        renderDashboard();
     }
 
-    function executeAction(opt) {
-        xp = Math.min(xp + 25, 100);
-        const msg = user.type === "JOBSEEKER" ? "Job application & GPS tracking updated." : "Business grant interest logged.";
-        triggerNotif("LEVEL UP!", msg);
-        state = "MAIN";
-        renderMain();
+    function triggerSMS(title, msg) {
+        document.getElementById('sms-title').innerText = title;
+        document.getElementById('sms-msg').innerText = msg;
+        const s = document.getElementById('sms-pop');
+        s.classList.add('active');
+        setTimeout(() => s.classList.remove('active'), 4000);
     }
 
-    function setMenu(txt) {
-        document.getElementById('menu-area').innerText = txt;
-        document.getElementById('user-name').innerText = user.name;
-        document.getElementById('user-loc').innerText = user.loc;
-        document.getElementById('bar-fill').style.width = xp + "%";
-        document.getElementById('rank-name').innerText = xp >= 75 ? "EXPERT" : (xp >= 50 ? "PARTICIPANT" : "CANDIDATE");
+    function updateLCD(body) {
+        document.getElementById('lcd-init').style.display = "none";
+        document.getElementById('lcd-main').style.display = "flex";
+        document.getElementById('h-name').innerText = user.name.toUpperCase();
+        document.getElementById('h-loc').innerText = user.loc;
+        document.getElementById('l-body').innerText = body;
+        document.getElementById('xp-fill').style.width = xp + "%";
+        document.getElementById('rank').innerText = xp > 70 ? "EXPERT" : "LEVEL 1";
     }
 
-    function triggerNotif(title, body) {
-        document.getElementById('n-title').innerText = title;
-        document.getElementById('n-body').innerText = body;
-        const n = document.getElementById('notif');
-        n.classList.add('active');
-        setTimeout(() => n.classList.remove('active'), 5000);
+    function drawInit(txt) {
+        document.getElementById('lcd-init').style.display = "block";
+        document.getElementById('lcd-main').style.display = "none";
+        document.getElementById('lcd-init').innerText = txt;
     }
 
-    function showUI() {
-        document.getElementById('boot-msg').style.display = "none";
-        document.getElementById('app-ui').style.display = "flex";
-    }
-
-    function drawLCD(txt) {
-        document.getElementById('boot-msg').style.display = "block";
-        document.getElementById('app-ui').style.display = "none";
-        document.getElementById('boot-msg').innerText = txt;
-    }
-
-    function onEnd() {
-        state = "IDLE"; user = null; xp = 25;
-        drawLCD("*** RSOS AGENT 8.0 ***\n\nSESSION CLOSED\n\nDIAL *120#");
+    function terminate() {
+        state = "IDLE"; user = null; xp = 20;
+        drawInit("*** RSOS AGENT ***\n\nSESSION ENDED\n\nDIAL *120#");
     }
 </script>
 </body>
