@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSOS Voice Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
+
+body {
+  font-family: 'Nunito', -apple-system, sans-serif;
+  background: #0a0a0a;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.phone-shell {
+  width: 390px;
+  height: 844px;
+  border-radius: 54px;
+  background: #000;
+  position: relative;
+  box-shadow:
+    inset 0 0 0 1.5px #2a2a2a,
+    0 0 0 2px #111,
+    0 50px 120px rgba(0,0,0,0.9);
+  overflow: hidden;
+}
+
+.phone-shell::before {
+  content: '';
+  position: absolute; top: 140px; right: -3px;
+  width: 3px; height: 70px;
+  background: linear-gradient(180deg,#2a2a2a,#1a1a1a,#2a2a2a);
+  border-radius: 0 2px 2px 0; z-index: 20;
+}
+.phone-shell::after {
+  content: '';
+  position: absolute; top: 96px; left: -3px;
+  width: 3px; height: 36px;
+  background: linear-gradient(180deg,#2a2a2a,#1a1a1a,#2a2a2a);
+  border-radius: 2px 0 0 2px; z-index: 20;
+  box-shadow: 0 50px 0 #222, 0 94px 0 #222;
+}
+
+.screen {
+  width: 100%; height: 100%;
+  position: relative; overflow: hidden;
+}
+
+.wallpaper {
+  position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(160deg, #0f2540 0%, #1a3a5c 35%, #0d1f35 65%, #061018 100%);
+  transition: background 1.8s ease;
+}
+.wallpaper.active-call {
+  background: linear-gradient(160deg, #0a2518 0%, #0f3a28 35%, #081f15 65%, #040e09 100%);
+}
+
+/* Notch */
+.notch {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 126px; height: 34px;
+  background: #000; border-radius: 0 0 24px 24px; z-index: 30;
+}
+.notch::before {
+  content: '';
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  width: 44px; height: 6px;
+  background: #111; border-radius: 3px;
+}
+.notch::after {
+  content: '';
+  position: absolute; top: 8px; right: 22px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #0a0a0a; border: 1.5px solid #1a1a1a;
+}
+
+/* Status bar */
+.statusbar {
+  position: relative; z-index: 25;
+  height: 50px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 32px 8px;
+}
+.sb-time { font-size: 15px; font-weight: 700; color: #fff; }
+.sb-right { display: flex; align-items: center; gap: 6px; }
+.sb-sig { display: flex; align-items: flex-end; gap: 1.5px; }
+.sb-sig span { background: #fff; border-radius: 1.5px; width: 3px; }
+.sb-sig span:nth-child(1){height:4px}
+.sb-sig span:nth-child(2){height:7px}
+.sb-sig span:nth-child(3){height:10px}
+.sb-sig span:nth-child(4){height:13px}
+.sb-bat { font-size: 13px; color: rgba(255,255,255,.8); }
+
+/* Pages */
+.page {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; flex-direction: column;
+  opacity: 0; pointer-events: none;
+  transition: opacity .4s ease;
+}
+.page.show { opacity: 1; pointer-events: all; }
+
+/* ── PAGE 1: DIAL ── */
+.idle-top {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-end;
+  padding-bottom: 28px; gap: 6px;
+}
+.idle-number {
+  font-size: 38px; font-weight: 300; color: #fff;
+  letter-spacing: 5px; min-height: 52px; text-align: center;
+}
+.idle-label {
+  font-size: 12px; color: rgba(255,255,255,.35); letter-spacing: 1.5px;
+}
+
+.dialpad {
+  padding: 0 32px;
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 12px; margin-bottom: 22px;
+}
+.dk {
+  height: 68px; border-radius: 50%;
+  background: rgba(255,255,255,.11);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer; transition: all .1s; gap: 1px;
+}
+.dk:active { background: rgba(255,255,255,.24); transform: scale(.93); }
+.dk .dn { font-size: 26px; font-weight: 300; color: #fff; line-height: 1; }
+.dk .da { font-size: 8px; color: rgba(255,255,255,.38); letter-spacing: 2px; font-weight: 600; }
+.dk.sym .dn { font-size: 22px; color: rgba(255,255,255,.55); }
+
+.idle-actions {
+  display: flex; align-items: center; justify-content: space-around;
+  padding: 0 40px 42px;
+}
+.ia-side {
+  width: 60px; height: 60px; border-radius: 50%;
+  background: rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; cursor: pointer; transition: all .12s;
+}
+.ia-side:active { transform: scale(.93); }
+.ia-side.del { background: transparent; }
+
+.call-out-btn {
+  width: 74px; height: 74px; border-radius: 50%; border: none;
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  box-shadow: 0 6px 30px rgba(22,163,74,.55);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; cursor: pointer; transition: all .18s;
+}
+.call-out-btn:hover { transform: scale(1.05); box-shadow: 0 8px 38px rgba(22,163,74,.7); }
+.call-out-btn:active { transform: scale(.93); }
+
+/* ── PAGE 2: RINGING ── */
+#page-ringing {
+  text-align: center; align-items: center;
+}
+.ringing-top {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.avatar-blob {
+  position: relative; width: 220px; height: 220px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 28px;
+}
+.blob-ring {
+  position: absolute; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.08);
+}
+.blob-ring:nth-child(1){inset:0}
+.blob-ring:nth-child(2){inset:20px;border-color:rgba(255,255,255,.1)}
+.blob-ring:nth-child(3){inset:40px;border-color:rgba(255,255,255,.13)}
+.blob-pulse {
+  position: absolute; border-radius: 50%;
+  border: 1.5px solid rgba(250,200,60,.25); inset: 50px;
+  animation: bpulse 1.8s ease-in-out infinite;
+}
+.blob-pulse:nth-child(5){animation-delay:.6s}
+.blob-pulse:nth-child(6){animation-delay:1.2s}
+@keyframes bpulse {
+  0%  { transform:scale(1); opacity:.6 }
+  100%{ transform:scale(2.4); opacity:0 }
+}
+.agent-avatar {
+  width: 112px; height: 112px; border-radius: 50%;
+  background: linear-gradient(145deg, #1d5fa8, #0d6b58);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; z-index: 2;
+  box-shadow: 0 0 0 4px rgba(255,255,255,.08), 0 16px 48px rgba(0,0,0,.5);
+}
+.agent-avatar .av-icon { font-size: 46px; }
+.ringing-name { font-size: 32px; font-weight: 300; color: #fff; }
+.ringing-number { font-size: 14px; color: rgba(255,255,255,.4); margin-top: 6px; letter-spacing: .5px; }
+.ringing-status {
+  font-size: 14px; color: rgba(255,255,255,.35); margin-top: 10px;
+  animation: fadep 1.4s infinite;
+}
+@keyframes fadep{0%,100%{opacity:.35}50%{opacity:.9}}
+
+.ringing-bottom {
+  padding: 0 0 50px;
+  display: flex; align-items: center; justify-content: space-around; width: 100%;
+}
+.ring-action { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.ring-btn {
+  width: 70px; height: 70px; border-radius: 50%; border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; cursor: pointer; transition: all .14s;
+}
+.ring-btn.end {
+  background: linear-gradient(135deg,#dc2626,#b91c1c);
+  box-shadow: 0 6px 24px rgba(220,38,38,.4);
+}
+.ring-btn.end:active{transform:scale(.91)}
+.ring-btn.side{background:rgba(255,255,255,.11)}
+.ring-btn.side:active{transform:scale(.91);background:rgba(255,255,255,.2)}
+.ring-lbl { font-size: 12px; color: rgba(255,255,255,.38); font-weight: 600; }
+
+/* ── PAGE 3: ACTIVE ── */
+#page-active { text-align: center; }
+
+.active-top {
+  padding-top: 4px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.active-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(74,222,128,.14); border: 1px solid rgba(74,222,128,.24);
+  border-radius: 20px; padding: 5px 14px; margin-bottom: 12px;
+  font-size: 11px; color: rgba(74,222,128,.9); font-weight: 700; letter-spacing: 1px;
+}
+.ab-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: abd 1.5s infinite; }
+@keyframes abd{0%,100%{opacity:1}50%{opacity:.25}}
+
+.active-timer {
+  font-size: 18px; font-weight: 300; color: rgba(255,255,255,.7);
+  letter-spacing: 3px; margin-bottom: 20px;
+}
+
+.active-avatar-wrap {
+  position: relative; width: 140px; height: 140px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+}
+.sring {
+  position: absolute; inset: -10px; border-radius: 50%;
+  border: 2px solid rgba(74,222,128,.3); opacity: 0;
+}
+.sring.go { animation: sringa 1.8s ease-out infinite; }
+.sring:nth-child(2).go { animation-delay: .7s; }
+@keyframes sringa {
+  0%  { transform:scale(1); opacity:.65 }
+  100%{ transform:scale(1.55); opacity:0 }
+}
+
+.active-av {
+  width: 120px; height: 120px; border-radius: 50%;
+  background: linear-gradient(145deg, #1d5fa8, #0d6b58);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; z-index: 2;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 12px 40px rgba(0,0,0,.5);
+  transition: box-shadow .3s;
+}
+.active-av.speaking {
+  box-shadow: 0 0 0 3px rgba(74,222,128,.38), 0 0 30px rgba(74,222,128,.2), 0 12px 40px rgba(0,0,0,.5);
+}
+.active-av .av-ic { font-size: 48px; }
+
+.active-name { font-size: 26px; font-weight: 300; color: #fff; }
+.active-sub { font-size: 12px; color: rgba(255,255,255,.32); margin-top: 5px; letter-spacing: .5px; }
+
+/* Waveform */
+.wf {
+  display: flex; align-items: center; justify-content: center;
+  gap: 3px; height: 30px; margin: 12px 0;
+}
+.wfb { width: 3px; border-radius: 3px; background: rgba(74,222,128,.45); height: 4px; }
+.wf.live .wfb { animation: wfa .7s ease-in-out infinite; }
+.wfb:nth-child(1){animation-delay:0s}   .wfb:nth-child(2){animation-delay:.06s}
+.wfb:nth-child(3){animation-delay:.12s} .wfb:nth-child(4){animation-delay:.18s}
+.wfb:nth-child(5){animation-delay:.24s} .wfb:nth-child(6){animation-delay:.18s}
+.wfb:nth-child(7){animation-delay:.12s} .wfb:nth-child(8){animation-delay:.06s}
+.wfb:nth-child(9){animation-delay:0s}   .wfb:nth-child(10){animation-delay:.09s}
+.wfb:nth-child(11){animation-delay:.18s}
+@keyframes wfa{0%,100%{height:4px;opacity:.35}50%{height:22px;opacity:1}}
+
+/* Caption */
+.caption-bubble {
+  margin: 0 22px 14px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 18px; padding: 11px 16px;
+  min-height: 56px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+}
+.cap-who { font-size: 9px; color: rgba(255,255,255,.28); letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
+.cap-text { font-size: 12px; color: rgba(255,255,255,.72); line-height: 1.55; text-align: center; }
+
+/* Controls */
+.controls {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 10px; padding: 0 24px; margin-bottom: 14px;
+}
+.ctrl {
+  height: 74px; border-radius: 22px;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.07);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer; transition: all .13s;
+}
+.ctrl:active { transform: scale(.93); background: rgba(255,255,255,.18); }
+.ctrl.on { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.2); }
+.ctrl.on-green { background: rgba(74,222,128,.17); border-color: rgba(74,222,128,.28); }
+.ctrl-ic { font-size: 22px; }
+.ctrl-lb { font-size: 10px; color: rgba(255,255,255,.42); font-weight: 700; letter-spacing: .3px; }
+.ctrl.on .ctrl-lb, .ctrl.on-green .ctrl-lb { color: rgba(255,255,255,.85); }
+
+/* End button */
+.end-row {
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 0 10px;
+}
+.end-btn {
+  width: 72px; height: 72px; border-radius: 50%; border: none;
+  background: linear-gradient(135deg,#dc2626,#b91c1c);
+  box-shadow: 0 6px 28px rgba(220,38,38,.45);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; cursor: pointer; transition: all .15s;
+}
+.end-btn:active { transform: scale(.92); }
+
+/* Home bar */
+.home-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 30;
+  height: 34px; display: flex; align-items: center; justify-content: center;
+}
+.hb-pill { width: 134px; height: 5px; background: rgba(255,255,255,.2); border-radius: 5px; }
+
+/* Error toast */
+.toast {
+  position: absolute; bottom: 60px; left: 20px; right: 20px; z-index: 100;
+  background: rgba(220,38,38,.9); border-radius: 14px; padding: 12px 16px;
+  font-size: 12px; color: #fff; text-align: center; line-height: 1.5;
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="phone-shell">
+  <div class="screen">
+
+    <div class="wallpaper" id="wallpaper"></div>
+    <div class="notch"></div>
+
+    <!-- Status bar -->
+    <div class="statusbar">
+      <div class="sb-time" id="sb-time">9:41</div>
+      <div class="sb-right">
+        <div class="sb-sig"><span></span><span></span><span></span><span></span></div>
+        <div class="sb-bat">🔋</div>
+      </div>
+    </div>
+
+    <!-- ════ PAGE 1: DIAL ════ -->
+    <div class="page show" id="page-idle">
+      <div class="idle-top">
+        <div class="idle-number" id="dial-number">0800 RSOS</div>
+        <div class="idle-label">RSOS VOICE AI · EASTERN CAPE</div>
+      </div>
+
+      <div class="dialpad">
+        <div class="dk" onclick="dialTap('1')"><span class="dn">1</span></div>
+        <div class="dk" onclick="dialTap('2')"><span class="dn">2</span><span class="da">ABC</span></div>
+        <div class="dk" onclick="dialTap('3')"><span class="dn">3</span><span class="da">DEF</span></div>
+        <div class="dk" onclick="dialTap('4')"><span class="dn">4</span><span class="da">GHI</span></div>
+        <div class="dk" onclick="dialTap('5')"><span class="dn">5</span><span class="da">JKL</span></div>
+        <div class="dk" onclick="dialTap('6')"><span class="dn">6</span><span class="da">MNO</span></div>
+        <div class="dk" onclick="dialTap('7')"><span class="dn">7</span><span class="da">PRS</span></div>
+        <div class="dk" onclick="dialTap('8')"><span class="dn">8</span><span class="da">TUV</span></div>
+        <div class="dk" onclick="dialTap('9')"><span class="dn">9</span><span class="da">WXY</span></div>
+        <div class="dk sym" onclick="dialTap('*')"><span class="dn">✱</span></div>
+        <div class="dk" onclick="dialTap('0')"><span class="dn">0</span></div>
+        <div class="dk sym" onclick="dialTap('#')"><span class="dn">#</span></div>
+      </div>
+
+      <div class="idle-actions">
+        <div class="ia-side">💬</div>
+        <button class="call-out-btn" onclick="startCall()">📞</button>
+        <div class="ia-side del" onclick="dialDel()">⌫</div>
+      </div>
+    </div>
+
+    <!-- ════ PAGE 2: RINGING ════ -->
+    <div class="page" id="page-ringing">
+      <div class="ringing-top">
+        <div class="avatar-blob">
+          <div class="blob-ring"></div>
+          <div class="blob-ring"></div>
+          <div class="blob-ring"></div>
+          <div class="blob-pulse"></div>
+          <div class="blob-pulse"></div>
+          <div class="blob-pulse"></div>
+          <div class="agent-avatar"><span class="av-icon">🤖</span></div>
+        </div>
+        <div class="ringing-name">RSOS Voice AI</div>
+        <div class="ringing-number">Eastern Cape · Career &amp; Business Advisor</div>
+        <div class="ringing-status" id="ring-status">Calling…</div>
+      </div>
+      <div class="ringing-bottom">
+        <div class="ring-action">
+          <div class="ring-btn side" id="ring-spkr">🔊</div>
+          <div class="ring-lbl">Speaker</div>
+        </div>
+        <div class="ring-action">
+          <button class="ring-btn end" onclick="cancelCall()">📵</button>
+          <div class="ring-lbl">End</div>
+        </div>
+        <div class="ring-action">
+          <div class="ring-btn side">🎤</div>
+          <div class="ring-lbl">Mute</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ PAGE 3: ACTIVE ════ -->
+    <div class="page" id="page-active">
+      <div class="active-top">
+        <div class="active-badge"><div class="ab-dot"></div>LIVE · ENCRYPTED</div>
+        <div class="active-timer" id="active-timer">0:00</div>
+        <div class="active-avatar-wrap">
+          <div class="sring" id="sring1"></div>
+          <div class="sring" id="sring2"></div>
+          <div class="active-av" id="active-av"><span class="av-ic">🤖</span></div>
+        </div>
+        <div class="active-name">RSOS Voice AI</div>
+        <div class="active-sub">Career &amp; Business Advisor · Eastern Cape</div>
+      </div>
+
+      <div class="wf" id="wf">
+        <div class="wfb"></div><div class="wfb"></div><div class="wfb"></div>
+        <div class="wfb"></div><div class="wfb"></div><div class="wfb"></div>
+        <div class="wfb"></div><div class="wfb"></div><div class="wfb"></div>
+        <div class="wfb"></div><div class="wfb"></div>
+      </div>
+
+      <div class="caption-bubble">
+        <div class="cap-who" id="cap-who">RSOS AGENT</div>
+        <div class="cap-text" id="cap-text">Connected — speak now</div>
+      </div>
+
+      <div class="controls">
+        <div class="ctrl" id="ctrl-mute" onclick="toggleMute()">
+          <span class="ctrl-ic" id="mute-ic">🎤</span>
+          <span class="ctrl-lb" id="mute-lb">Mute</span>
+        </div>
+        <div class="ctrl" id="ctrl-keypad" onclick="toggleCtrl('ctrl-keypad')">
+          <span class="ctrl-ic">⌨️</span>
+          <span class="ctrl-lb">Keypad</span>
+        </div>
+        <div class="ctrl on-green" id="ctrl-spkr" onclick="toggleCtrl('ctrl-spkr')">
+          <span class="ctrl-ic">🔊</span>
+          <span class="ctrl-lb">Speaker</span>
+        </div>
+        <div class="ctrl" id="ctrl-add">
+          <span class="ctrl-ic">➕</span>
+          <span class="ctrl-lb">Add Call</span>
+        </div>
+        <div class="ctrl" id="ctrl-lang" onclick="toggleLang()">
+          <span class="ctrl-ic">🗣️</span>
+          <span class="ctrl-lb" id="lang-lbl">isiXhosa</span>
+        </div>
+        <div class="ctrl" id="ctrl-hold" onclick="toggleCtrl('ctrl-hold')">
+          <span class="ctrl-ic">⏸️</span>
+          <span class="ctrl-lb">Hold</span>
+        </div>
+      </div>
+
+      <div class="end-row">
+        <button class="end-btn" onclick="endCall()">📵</button>
+      </div>
+    </div>
+
+    <div class="home-bar"><div class="hb-pill"></div></div>
+    <div class="toast" id="toast"></div>
+
+  </div>
+</div>
+
+<!-- VAPI Web SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@vapi-ai/web/dist/vapi.js"></script>
+<script>
+const ASSISTANT_ID = '00f37ca3-4513-46ac-901a-80e56cdbc7e0';
+
+// ── Init VAPI ──────────────────────────────────
+let vapi = null;
+try {
+  vapi = new Vapi('3db22fac-ded1-4c9e-9448-d9acb59ccdd4'); // public key placeholder — see note below
+} catch(e) {}
+
+// ── Clock ──────────────────────────────────────
+function tick(){
+  const n=new Date();
+  document.getElementById('sb-time').textContent=
+    n.getHours()+':'+String(n.getMinutes()).padStart(2,'0');
+}
+tick(); setInterval(tick,20000);
+
+// ── Dial ───────────────────────────────────────
+let dialBuf='';
+function dialTap(n){ if(dialBuf.length<12) dialBuf+=n; document.getElementById('dial-number').textContent=formatDial(dialBuf); }
+function dialDel(){ dialBuf=dialBuf.slice(0,-1); document.getElementById('dial-number').textContent=formatDial(dialBuf)||'0800 RSOS'; }
+function formatDial(s){ return s||''; }
+
+// ── Pages ──────────────────────────────────────
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
+
+// ── Timer ──────────────────────────────────────
+let timerSec=0, timerInt=null;
+function startTimer(){ timerSec=0; timerInt=setInterval(()=>{ timerSec++; const m=Math.floor(timerSec/60),s=String(timerSec%60).padStart(2,'0'); document.getElementById('active-timer').textContent=m+':'+s; },1000); }
+function stopTimer(){ clearInterval(timerInt); }
+
+// ── Speaking visuals ───────────────────────────
+function setAgentSpeaking(on){
+  document.getElementById('active-av').classList.toggle('speaking',on);
+  document.getElementById('wf').classList.toggle('live',on);
+  document.getElementById('sring1').classList.toggle('go',on);
+  document.getElementById('sring2').classList.toggle('go',on);
+}
+
+function setCaption(who,text){
+  document.getElementById('cap-who').textContent=who==='agent'?'RSOS AGENT':'YOU';
+  document.getElementById('cap-text').textContent=text;
+}
+
+function showToast(msg,ms=4000){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.display='block';
+  setTimeout(()=>t.style.display='none',ms);
+}
+
+// ── VAPI events ────────────────────────────────
+if(vapi){
+  vapi.on('call-start',()=>{
+    showPage('page-active');
+    document.getElementById('wallpaper').classList.add('active-call');
+    startTimer();
+    setCaption('agent','Connected — RSOS is listening…');
+  });
+
+  vapi.on('call-end',()=>{
+    resetToIdle();
+  });
+
+  vapi.on('speech-start',()=>{
+    setAgentSpeaking(true);
+    setCaption('agent','Speaking…');
+  });
+
+  vapi.on('speech-end',()=>{
+    setAgentSpeaking(false);
+    setCaption('user','Your turn — speak now');
+  });
+
+  vapi.on('message',(msg)=>{
+    if(msg.type==='transcript'){
+      if(msg.role==='assistant' && msg.transcriptType==='final'){
+        setCaption('agent', msg.transcript);
+      }
+      if(msg.role==='user' && msg.transcriptType==='final'){
+        setCaption('user', msg.transcript);
+      }
+    }
+  });
+
+  vapi.on('error',(err)=>{
+    console.error('VAPI error',err);
+    showToast('Connection error. Please try again.');
+    resetToIdle();
+  });
+}
+
+// ── Start call ─────────────────────────────────
+function startCall(){
+  showPage('page-ringing');
+  document.getElementById('ring-status').textContent='Calling RSOS…';
+
+  if(vapi){
+    vapi.start(ASSISTANT_ID)
+      .then(()=>{
+        document.getElementById('ring-status').textContent='Connecting…';
+      })
+      .catch(err=>{
+        console.error(err);
+        showToast('Could not connect. Check microphone permissions.');
+        showPage('page-idle');
+      });
+  } else {
+    // Fallback demo if VAPI SDK not available
+    setTimeout(()=>demoConnect(), 2500);
+  }
+}
+
+function cancelCall(){
+  if(vapi) vapi.stop();
+  resetToIdle();
+}
+
+function endCall(){
+  if(vapi) vapi.stop();
+  resetToIdle();
+}
+
+function resetToIdle(){
+  stopTimer();
+  setAgentSpeaking(false);
+  document.getElementById('wallpaper').classList.remove('active-call');
+  document.getElementById('active-timer').textContent='0:00';
+  showPage('page-idle');
+  dialBuf='';
+  document.getElementById('dial-number').textContent='0800 RSOS';
+}
+
+// ── Fallback demo (no SDK) ─────────────────────
+function demoConnect(){
+  showPage('page-active');
+  document.getElementById('wallpaper').classList.add('active-call');
+  startTimer();
+  const lines=[
+    {who:'agent',t:0,   text:'Hello, welcome to RSOS. Are you a graduate or a business owner?'},
+    {who:'user', t:5000,text:'I am a graduate.'},
+    {who:'agent',t:7000,text:'Please provide your South African ID number.'},
+    {who:'user', t:12000,text:'9901015800087'},
+    {who:'agent',t:14000,text:'Welcome back, Sipho. Verified. Running your Skills GPS…'},
+    {who:'agent',t:18000,text:'You qualify for electrical assistant roles in East London — 3 open this week.'},
+    {who:'agent',t:23000,text:'To reach the next level: Wireman\'s Licence + 18 months supervised experience.'},
+    {who:'agent',t:28000,text:'Shall I register you for WSU SETA, or apply to PPC Cement East London?'},
+  ];
+  lines.forEach(l=>{
+    setTimeout(()=>{
+      setCaption(l.who,l.text);
+      setAgentSpeaking(l.who==='agent');
+      if(l.who==='agent') setTimeout(()=>setAgentSpeaking(false),3500);
+    },l.t);
+  });
+  setTimeout(()=>resetToIdle(), 33000);
+}
+
+// ── Controls ───────────────────────────────────
+let muted=false, useLang='en';
+function toggleMute(){
+  muted=!muted;
+  if(vapi) vapi.setMuted(muted);
+  document.getElementById('mute-ic').textContent=muted?'🔇':'🎤';
+  document.getElementById('mute-lb').textContent=muted?'Unmute':'Mute';
+  document.getElementById('ctrl-mute').classList.toggle('on',muted);
+}
+function toggleCtrl(id){ document.getElementById(id).classList.toggle('on'); }
+function toggleLang(){
+  useLang=useLang==='en'?'xh':'en';
+  document.getElementById('lang-lbl').textContent=useLang==='xh'?'English':'isiXhosa';
+  document.getElementById('ctrl-lang').classList.toggle('on-green');
+}
+</script>
+</body>
+</html>
